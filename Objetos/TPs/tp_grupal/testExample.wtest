@@ -1,0 +1,220 @@
+import laTierraMedia.*
+
+describe "Tests Gandalf" {
+
+  test "Gandalf con toda la vida y todas sus armas" {
+    assert.equals(2800, gandalf.poder())
+  }
+
+  test "Gandalf sin armas y con 80 de vida" {
+    gandalf.vida(80)
+    gandalf.armas([])
+    assert.equals(1200, gandalf.poder())
+  }
+
+  test "Poder de Gandalf con 5 de vida y su báculo" {
+    gandalf.vida(5)
+    gandalf.armas([baculo])
+    assert.equals(2300, gandalf.poder())
+  }
+
+  test "Poder de Gandalf con 30 de vida, su báculo y su espada pero versión enana" {
+    gandalf.vida(30)
+    espada.origen(enano)
+    gandalf.armas([baculo,espada])
+    assert.equals(1650, gandalf.poder())
+  }
+}
+
+describe "Tests de Zonas y Caminos" {
+
+  test "Gandalf full vida y con sus armas, puede atravesar Lebennin" {
+    gandalf.vida(100)
+    gandalf.armas([baculo,espada])
+    assert.that(lebennin.puedePasar(gandalf)) 
+  }
+
+  test "Gandalf sin armas y con 11 de vida puede atravesar Lebennin" {
+    gandalf.vida(11)
+    gandalf.armas([])
+    assert.notThat(lebennin.puedePasar(gandalf))
+  }
+
+  test "Gandalf sin armas y con 11 de vida puede atravesar Minas Tirith" {
+    gandalf.vida(11)
+    gandalf.armas([])
+    assert.notThat(minasTirith.puedePasar(gandalf))
+  }
+
+  test "Gandalf full vida y con sus armas, atraviesa el camino compuesto por Lebennin y Minas Tirith" {
+    gandalf.vida(100)
+    gandalf.armas([baculo,espada])
+    gondor.zonas ([lebennin,minasTirith])
+    gandalf.recorrerZona(gondor)
+    assert.equals(90, gandalf.vida())
+  }
+
+
+}
+
+describe "Tests de Tom" {
+  
+    test "Tom puede atravesar atravesar Lebennin" {
+      assert.that(lebennin.puedePasar(tom))
+    }
+  
+    test "Tom atraviesa el camino que pasa por Gondor, compuesto por Lebennin y Minas Tirith" {
+    
+    const tomOriginal = tom
+    gondor.zonas ([lebennin,minasTirith])
+    tom.recorrerZona(gondor)
+    assert.equals(tomOriginal, tom)
+    }
+}
+
+//==========================| Segunda parte |==========================
+///////////////////////////          Arsenal               ///////////////////////////////////////////
+
+describe "Test Arsenal" {
+  test "Espada con multiplicador 15 y llevada por un enano" {
+    var espadaEnano = new Espada(multiplicador=15)
+    var enanoNuevo = new Enano(factorDePoder=10)
+    assert.equals(300, espadaEnano.poder(enanoNuevo))
+  }
+
+  test "Poder con hacha con mango 50 y hoja de 5, tiene que dar 250" {
+    var hachaEnano = new Hacha(mango=50,hojaMetalica=5)
+    assert.equals(250, hachaEnano.poder({}))
+  }
+}
+
+///////////////////////////          Guerreros               ///////////////////////////////////////////
+
+
+describe "Guerreros" {
+  var frodo = new Hobbit(vida=50,armas=[new Daga(multiplicador=8)],items=[])
+  var gimli = new Enano(vida=75,armas=[new Hacha(mango=70,hojaMetalica=5),new Hacha(mango=70,hojaMetalica=5)],factorDePoder=3)
+  var aragon = new Humano(vida=85,armas=[new Espada(multiplicador=18),new Daga(multiplicador =10)],limitadorPoder=20)
+  
+
+  test "Poder de Frodo es de 50" {
+    assert.equals(50, frodo.poder())
+  }
+  test "Poder de Gimli es de 2175" {
+    assert.equals(2175, gimli.poder())
+  }
+  test "Poder de Legolas es de 980" {
+    const legolas = new Elfo(vida=80,armas=[new Espada(multiplicador=12)],destrezaPropia=1)
+    assert.equals(980, legolas.poder())
+  }
+  test "Poder de Aragon es de 102.25" {
+    assert.equals(102.25, aragon.poder())
+  }
+  test "Poder de Gandalf es de 2700" {
+    const gandalf = new Maiar(vida=100,armas=[new Espada(multiplicador=10),new Baculo(poder=400)])
+    assert.equals(2700, gandalf.poder())
+  }
+   test "Gandalf con 9 de vida, y todas sus armas, su poder sera de 3900" {
+    const gandalf = new Maiar(vida=9,armas=[new Espada(multiplicador=10),new Baculo(poder=400)])
+    assert.equals(3900, gandalf.poder())
+  }
+  test "Poder de Légolas que obtiene medio punto de destreza propia, su poder es de 830" {
+    const legolas = new Elfo(vida=80,armas=[new Espada(multiplicador=12)],destrezaPropia=0.5)
+    assert.equals(830, legolas.poder())
+  }
+
+}
+
+///////////////////////////          Zonas y Caminos               ///////////////////////////////////////////
+
+
+describe "zonas, caminos, grupos" {
+  //REQUERIMIENTO ELEMENTO
+  const requerimientoLembas = new RequerimientoElemento(nombreElemento="lembas",cantidad =10)
+  //REQUERIMIENTO GUERRERO
+  const requerimientoPoder = new RequerimientoPoder(poderRequerido=350) 
+  const requerimientoVida = new RequerimientoVida(vidaRequerido=80)
+
+
+  //ZONAS
+  var lebennin = new ZonaConPoder(cantidadPoder=1500, requerimiento = requerimientoLembas)
+  var minasTirih = new ZonaConArmas(cantidadVida=10,requerimiento=requerimientoPoder)
+
+  //GUERREROS
+  const frodo = new Hobbit(vida=50,armas=#{new Espada(multiplicador=1)},items=["lembas","lembas","lembas","lembas","lembas","lembas"])
+  const gandalf = new Maiar(vida=100,armas=#{new Espada(multiplicador=10),new Baculo(poder=400)})
+  const gimli = new Enano(vida=75,armas=#{new Hacha(mango=70,hojaMetalica=5),new Hacha(mango=70,hojaMetalica=5)},factorDePoder=3)
+  const sam = new Hobbit(vida=100,armas=#{new Espada(multiplicador=25)},items=["lembas","lembas","lembas","lembas","lembas","lembas"])
+  const merry = new Hobbit(vida=100,armas=#{new Espada(multiplicador=25)},items=["lembas","lembas","lembas","lembas","lembas","lembas"])
+  const pippin = new Hobbit(vida=50,armas=#{new Espada(multiplicador=1)},items=["lembas","lembas","lembas","lembas"])
+
+  //GRUPOS de GUERREROS
+  const comunidadDelAnillo = new Grupo(integrantes =#{gimli,gandalf,sam,merry})
+  const comunidadAlterno = new Grupo(integrantes =#{gimli,gandalf})
+
+  //CAMINO (CONJUNTO DE ZONAS)
+  const caminoAMordor = new Camino(zonas=#{lebennin,minasTirih})
+
+  test "no puede pasar frodo porque no supera el poder de lebenni que es de 1500" {
+    assert.notThat(lebennin.puedePasar(frodo))
+  }
+  test "Puede pasar Gandalf porque supera el poder de lebenni que es de 1500" {
+    assert.that(lebennin.puedePasar(gandalf))
+  }
+  test "Puede pasar gimli porque supera el poder de lebenni que es de 1500" {
+    assert.that(lebennin.puedePasar(gimli))
+  }
+  test "no puede pasar Gollum porque no tiene armas para Minas Tirih" {
+    assert.notThat(minasTirih.puedePasar(gollum))
+  }
+  test "puede pasar Gandalf porque tiene al menos un arma para Minas Tirih" {
+    assert.that(minasTirih.puedePasar(gandalf))
+  }
+  test "puede pasar gimli porque tiene al menos un arma" {
+    assert.that(minasTirih.puedePasar(gimli))
+  }
+
+  test "puede pasar el grupo comunidad del anillo por el camino de gondor" {
+    assert.that(comunidadDelAnillo.puedeAtravesar(caminoAMordor))
+  }
+
+  test "No puede pasar por el camino el grupo comunidadAlterno por que no cumple con los requerimientos de cada zona" {
+    // el requerimiento elemento es que tengas mas de 10 lembas la suma de todos los items del grupo
+    // el requerimienro poder es que alguno del grupo sea mayor a 350
+    const comunidadSinRequerimientos = new Grupo(integrantes=#{frodo,pippin})
+    assert.notThat(caminoAMordor.puedeAtravesarConRequerimiento(comunidadSinRequerimientos))
+  }
+
+  test "Puede pasar por el camino el grupo comunidad del anillo por que cumple con los requerimientos de cada zona" {
+    // se suma los items de meery mas los items de sam, supera el valor de requerimiento que es 10 lembas
+    // el poder de uno de los integrantes del grupo supera los 350
+    assert.that(caminoAMordor.puedeAtravesarConRequerimiento(comunidadDelAnillo))
+  }
+
+  test "Cumple el requerimiento poder el grupo comunidadDelAnillo" {
+    assert.that(requerimientoPoder.loCumple(comunidadDelAnillo))
+  }
+  test "No cumple el requerimiento poder el grupo comunidadMenosPoder" {
+    const comunidadMenosPoder = new Grupo(integrantes=#{frodo,pippin})
+    assert.notThat(requerimientoPoder.loCumple(comunidadMenosPoder))
+  }
+
+  test "Cumple el requerimiento vida el grupo comunidadAlterno porque al menos uno lo cumple" {
+    assert.that(requerimientoVida.loCumple(comunidadAlterno))
+  }
+  test "No Cumple el requerimiento vida el grupo comunidadMenosPoder porque ninguno lo cumple" {
+    const comunidadMenosPoder = new Grupo(integrantes=#{frodo,pippin})
+    assert.notThat(requerimientoVida.loCumple(comunidadMenosPoder))
+  }
+
+  test "Cumple el requerimiento dosArmas el grupo comunidadAlterno porque al menos uno lo cumple" {
+    // El requerimiento "dosArmas" es un objeto
+    assert.that(dosArmas.loCumple(comunidadAlterno))
+  }
+  test "No Cumple el requerimiento dosArmas el grupo comunidadMenosPoder porque ninguno lo cumple" {
+    // El requerimiento "dosArmas" es un objeto
+    const comunidadMenosPoder = new Grupo(integrantes=#{frodo,pippin})
+    assert.notThat(dosArmas.loCumple(comunidadMenosPoder))
+  }
+
+}
